@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: rabebhamed/backend-serivce:latest
+        ports:
+        - containerPort: 80
+      env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mongodb-configmap
+                  key: mongo-uri
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configmap
+                  key: db-name
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: db-password
+  

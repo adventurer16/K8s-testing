@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sonarqube-configmap
+  namespace: testing
+data:
+  sonar.jdbc.url: jdbc:postgresql://postgres-service:5432/sonarqube
+  sonar.jdbc.username: sonar
+  sonar.jdbc.password: <plain-db-password>
+  sonar.web.systemPasscode: <plain-system-passcode>
+  sonar.log.level: INFO
+  sonar.path.data: /opt/sonarqube/data
+  sonar.path.temp: /opt/sonarqube/temp

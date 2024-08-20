@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-configmap
+  namespace: backend
+data:
+  DATABASE_URL: "mongodb://admin:147zaah@mongo:27017/backend?authSource=admin"
+  LOG_LEVEL: "info"
+ 

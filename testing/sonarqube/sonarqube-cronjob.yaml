@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sonarqube-analysis
+  namespace: testing
+spec:
+  schedule: "0 2 * * *"  # Run every day at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sonar-scanner
+            image: your-docker-repo/sonar-scanner:latest
+            env:
+            - name: SONAR_HOST_URL
+              value: "http://sonarqube-service:9000"
+            - name: SONAR_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: sonar-token
+                  key: sonar.login
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              sonar-scanner \
+              -Dsonar.projectKey=\
+              -Dsonar.sources=./src \
+              -Dsonar.host.url=$SONAR_HOST_URL \
+              -Dsonar.login=$SONAR_LOGIN
+          restartPolicy: OnFailure

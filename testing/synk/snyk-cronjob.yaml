@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: snyk-scan
+  namespace: testing
+spec:
+  schedule: "0 0 * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: snyk-scan
+            image: rabebhamd/snyk:test
+            env:
+            - name: SNYK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: snyk-token-secret
+                  key: SNYK_TOKEN
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Get the list of images running in the namespace
+              images=$(kubectl get pods --namespace=testing -o jsonpath="{.items[*].spec.containers[*].image}")
+
+              # Loop through each image and run Snyk test
+              for image in $images; do
+                echo "Scanning image: $image"
+                snyk test --docker "$image" || echo "Snyk scan failed for $image"
+              done
+          restartPolicy: OnFailure

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contracts-deployment
+  labels:
+    app: contracts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contracts
+  template:
+    metadata:
+      labels:
+        app: contracts
+    spec:
+      imagePullSecrets:
+       - name: regcred
+      containers:
+      - name: nft-marketplace
+        image: rabebhamd/contracts:test
+        imagePullPolicy: Always
+        env:
+        - name: WALLET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: contracts-secrets
+              key: WALLET_SECRET_KEY
+        - name: JSON_RPC_URL_PUBLIC
+          valueFrom:
+            secretKeyRef:
+              name: contracts-secrets
+              key: JSON_RPC_URL_PUBLIC
+        command: ["npm", "run", "deploy"]
+
+      - name: whitelist
+        image: rabebhamd/whitelist-contracts:latest
+        imagePullPolicy: Always
+        env:
+        - name: WALLET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: contracts-secrets
+              key: WALLET_SECRET_KEY
+        - name: JSON_RPC_URL_PUBLIC
+          valueFrom:
+            secretKeyRef:
+              name: contracts-secrets
+              key: JSON_RPC_URL_PUBLIC
+        command: ["npm", "run", "deploy"]

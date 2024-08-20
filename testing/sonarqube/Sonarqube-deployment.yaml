@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonar-postgres
+  namespace: testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonar-postgres
+  template:
+    metadata:
+      labels:
+        app: sonar-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+
+      - name: sonarqube
+        image: sonarqube:9.6-community
+        ports:
+        - containerPort: 9000
+        env:
+        - name: SONARQUBE_JDBC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: sonarqube-secrets
+              key: sonar.jdbc.username
+        - name: SONARQUBE_JDBC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sonarqube-secrets
+              key: sonar.jdbc.password
+        - name: SONARQUBE_JDBC_URL
+          valueFrom:
+            configMapKeyRef:
+              name: sonarqube-configmap
+              key: sonar.jdbc.url
+        - name: SONAR_WEB_SYSTEM_PASSCODE
+          valueFrom:
+            secretKeyRef:
+              name: sonarqube-secrets
+              key: sonar.web.systemPasscode
+        volumeMounts:
+        - name: sonarqube-data
+          mountPath: /opt/sonarqube/data
+        - name: sonarqube-logs
+          mountPath: /opt/sonarqube/logs
+        - name: sonarqube-temp
+          mountPath: /opt/sonarqube/temp
+
+      volumes:
+      - name: postgres-data
+        emptyDir: {}
+      - name: sonarqube-data
+        emptyDir: {}
+      - name: sonarqube-logs
+        emptyDir: {}
+      - name: sonarqube-temp
+        emptyDir: {}
