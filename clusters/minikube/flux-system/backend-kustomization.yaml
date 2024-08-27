@@ -1,0 +1,19 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: backend-kustomization
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: "./testing/backend"
+  prune: true
+  force: true 
+  sourceRef:
+    kind: GitRepository
+    name: k8s-testing-repo 
+    namespace: flux-system
+  images:
+    - name: rabebhamd/backend-service
+      newName: rabebhamd/backend-service
+      newTag: test3 # Specify the tag you want to monitor
+  targetNamespace: testing

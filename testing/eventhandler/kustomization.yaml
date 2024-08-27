@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+ - elasticsearch-deployement.yaml  
+ - elasticsearch-service.yaml    
+ - eventhandler-service.yaml 
+ - elasticsearch-pvc.yaml      
+ - eventhandler-deployment.yaml 
+ -  kibana-service.yaml  
+ - pvc-eventhandler.yaml

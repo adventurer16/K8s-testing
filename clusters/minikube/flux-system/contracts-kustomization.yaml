@@ -1,0 +1,23 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: backend-kustomization
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: "./testing/contracts"
+  prune: true
+  force: true 
+  sourceRef:
+    kind: GitRepository
+    name: k8s-testing-repo 
+    namespace: flux-system
+  images:
+    - name: rabebhamd/whitelist-contracts
+      newName: rabebhamd/whitelist-contracts
+      newTag: test
+    
+    - name: rabebhamd/contratcs
+      newName: rabebhamd/contratcs
+      newTag: test
+  targetNamespace: testing

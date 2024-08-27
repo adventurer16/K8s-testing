@@ -1,0 +1,19 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: eventhandler-kustomization
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: "./testing/eventhandler"
+  prune: true
+  force: true 
+  sourceRef:
+    kind: GitRepository
+    name: k8s-testing-repo 
+    namespace: flux-system
+  images:
+    - name: rabebhamd/eventhandler-service
+      newName: rabebhamd/eventhandler-service
+      newTag: test3 # Specify the tag you want to monitor
+  targetNamespace: testing

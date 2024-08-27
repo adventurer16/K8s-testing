@@ -1,0 +1,17 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: contracts-whitelist-repo
+  namespace: flux-system
+spec:
+  image: rabebhamd/whitelist-contracts
+  interval: 1m 
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: contracts-repo
+  namespace: flux-system
+spec:
+  image: rabebhamd/contratcs
+  interval: 1m  
