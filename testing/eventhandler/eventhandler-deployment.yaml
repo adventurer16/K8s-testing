@@ -1,97 +1,101 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: kafka-elasticsearch-eventhandler-pod
+  name: kafka-elasticsearch-eventhandler-deployment
   labels:
     app: eventhandler
 spec:
-  containers:
-  - name: zookeeper
-    image: confluentinc/cp-zookeeper:7.4.0
-    ports:
-    - containerPort: 32181
-    env:
-    - name: ZOOKEEPER_SERVER_ID
-      value: "1"
-    - name: ZOOKEEPER_CLIENT_PORT
-      value: "32181"
-    - name: ZOOKEEPER_TICK_TIME
-      value: "2000"
-    - name: ZOOKEEPER_INIT_LIMIT
-      value: "5"
-    - name: ZOOKEEPER_SYNC_LIMIT
-      value: "2"
-    - name: ZOOKEEPER_SERVERS
-      value: "localhost:2888:3888"
-  
-  - name: broker-1
-    image: confluentinc/cp-kafka:7.4.0
-    ports:
-    - containerPort: 9091
-    env:
-    - name: KAFKA_BROKER_ID
-      value: "1"
-    - name: KAFKA_ZOOKEEPER_CONNECT
-      value: "localhost:32181"
-    - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-      value: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
-    - name: KAFKA_INTER_BROKER_LISTENER_NAME
-      value: "INTERNAL"
-    - name: KAFKA_ADVERTISED_LISTENERS
-      value: "INTERNAL://localhost:29091,EXTERNAL://localhost:9091"
-    - name: KAFKA_LISTENERS
-      value: "INTERNAL://0.0.0.0:29091,EXTERNAL://0.0.0.0:9091"
+  replicas: 1  # Number of replicas to maintain
+  selector:
+    matchLabels:
+      app: eventhandler
+  template:
+    metadata:
+      labels:
+        app: eventhandler
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.4.0
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        ports:
+        - containerPort: 2181  # Standard ZooKeeper client port
+        env:
+        - name: ZOOKEEPER_SERVER_ID
+          value: "1"
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+        - name: ZOOKEEPER_INIT_LIMIT
+          value: "5"
+        - name: ZOOKEEPER_SYNC_LIMIT
+          value: "2"
+        - name: ZOOKEEPER_STANDALONE_ENABLED  # Enable standalone mode
+          value: "true"
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo ruok | nc 127.0.0.1 2181
+          initialDelaySeconds: 120
+          periodSeconds: 20
+          failureThreshold: 5
 
-  - name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    ports:
-    - containerPort: 9200
-    env:
-    - name: discovery.type
-      value: "single-node"
-    - name: xpack.security.enabled
-      value: "true"
-    - name: xpack.security.transport.ssl.enabled
-      value: "false"
-    - name: ELASTIC_PASSWORD
-      value: "your_secure_password"
-    - name: bootstrap.memory_lock
-      value: "true"
-    - name: ES_JAVA_OPTS
-      value: "-Xms512m -Xmx512m"
-    volumeMounts:
-    - name: es-data
-      mountPath: /usr/share/elasticsearch/data
+      - name: broker-1
+        image: confluentinc/cp-kafka:7.4.0
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        ports:
+        - containerPort: 9091
+        env:
+        - name: KAFKA_BROKER_ID
+          value: "1"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "localhost:2181"  # Updated to match the ZooKeeper client port
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "INTERNAL"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "INTERNAL://localhost:29091,EXTERNAL://localhost:9091"
+        - name: KAFKA_LISTENERS
+          value: "INTERNAL://0.0.0.0:29091,EXTERNAL://0.0.0.0:9091"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: "1"
 
-  - name: kibana
-    image: docker.elastic.co/kibana/kibana:7.17.0
-    ports:
-    - containerPort: 5601
-    env:
-    - name: ELASTICSEARCH_HOSTS
-      value: 'http://localhost:9200'
-    - name: ELASTICSEARCH_USERNAME
-      value: "elastic"
-    - name: ELASTICSEARCH_PASSWORD
-      value: "your_secure_password"
-    - name: LOGGING_VERBOSE
-      value: "true"
-    - name: xpack.security.enabled
-      value: "false"
-  
-  - name: eventhandler
-    image: rabebhamd/eventhandler-service:test3
-    imagePullPolicy: Always
-    ports:
-    - containerPort: 4000
-    env:
-    - name: MONGO_URI
-      valueFrom:
-        configMapKeyRef:
-          name: eventhandler-config
-          key: MONGO_URI
- 
+      - name: eventhandler
+        image: rabebhamd/eventhandler-service:test3
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4000
+        env:
+        - name: MONGO_URI
+          value: "mongodb://admin:147zaah@mongo-service-test:27017/db_indexation?authSource=admin" 
+        - name: ELASTICSEARCH_NODE
+          value: "http://elasticsearch-service:9200"
 
-  volumes:
-  - name: es-data
-    emptyDir: {}  
+      volumes:
+      - name: app-env
+        emptyDir: {}

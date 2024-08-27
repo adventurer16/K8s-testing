@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-kibana-deployment
+  labels:
+    app: eventhandler
+spec:
+  replicas: 1  
+  selector:
+    matchLabels:
+      app: eventhandler
+  template:
+    metadata:
+      labels:
+        app: eventhandler
+    spec:
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+        securityContext: 
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+            add: ["IPC_LOCK"]
+        ports:
+        - containerPort: 9200
+        env:
+        - name: discovery.type
+          value: "single-node"
+        - name: ELASTIC_PASSWORD
+          value: "your_secure_password"
+        - name: bootstrap.memory_lock
+          value: "true"
+        - name: ES_JAVA_OPTS
+          value: "-Xms2g -Xmx2g"  # Increased heap size
+        resources:
+          requests:
+            memory: "6Gi"
+            cpu: "3"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        volumeMounts:
+        - name: es-data
+          mountPath: /usr/share/elasticsearch/data
+
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.17.0
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        ports:
+        - containerPort: 5601
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: 'http://localhost:9200'
+        - name: ELASTICSEARCH_USERNAME
+          value: "elastic"
+        - name: ELASTICSEARCH_PASSWORD
+          value: "your_secure_password"
+        - name: LOGGING_VERBOSE
+          value: "true"
+        volumeMounts:
+        - name: kibana-data
+          mountPath: /usr/share/kibana/data
+
+      volumes:
+      - name: es-data
+        persistentVolumeClaim:
+          claimName: elasticsearch-pvc
+      - name: kibana-data
+        emptyDir: {}

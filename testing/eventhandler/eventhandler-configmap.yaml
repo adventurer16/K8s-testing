@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: eventhandler-config
-  namespace: testing
-data:
-  MONGO_URI: "mongodb://admin:147zaah@mongo-service-test:27017/db_indexation"

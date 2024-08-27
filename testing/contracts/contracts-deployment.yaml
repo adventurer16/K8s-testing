@@ -1,50 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: contracts-deployment
+  name: whitelist-nft-contract-deployment
   labels:
-    app: contracts
+    app: whitelist-nft-contract
 spec:
-  replicas: 1
+  replicas: 1  # Number of Pods to run
   selector:
     matchLabels:
-      app: contracts
+      app: whitelist-nft-contract
   template:
     metadata:
       labels:
-        app: contracts
+        app: whitelist-nft-contract
     spec:
       imagePullSecrets:
-       - name: regcred
+      - name: regcred
       containers:
-      - name: nft-marketplace
-        image: rabebhamd/contracts:test
-        imagePullPolicy: Always
-        env:
-        - name: WALLET_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: contracts-secrets
-              key: WALLET_SECRET_KEY
-        - name: JSON_RPC_URL_PUBLIC
-          valueFrom:
-            secretKeyRef:
-              name: contracts-secrets
-              key: JSON_RPC_URL_PUBLIC
-        command: ["npm", "run", "deploy"]
-
       - name: whitelist
-        image: rabebhamd/whitelist-contracts:latest
-        imagePullPolicy: Always
-        env:
-        - name: WALLET_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: contracts-secrets
-              key: WALLET_SECRET_KEY
-        - name: JSON_RPC_URL_PUBLIC
-          valueFrom:
-            secretKeyRef:
-              name: contracts-secrets
-              key: JSON_RPC_URL_PUBLIC
-        command: ["npm", "run", "deploy"]
+        image: rabebhamd/whitelist-contracts:test
+        imagePullPolicy: Always 
+        workingDir: /whitelist
+        command: ["/bin/bash"]  
+        tty: true  
+        stdin: true  
+        volumeMounts:
+        - name: whitelist-data
+          mountPath: /whitelist
+
+      - name: nft-marketplace-contract
+        image: rabebhamd/contratcs:test
+        imagePullPolicy: Always  
+        workingDir: /nft-marketplace-contract
+        command: ["/bin/bash"] 
+        tty: true 
+        stdin: true  
+        volumeMounts:
+        - name: nft-marketplace-data
+          mountPath: /nft-marketplace-contract
+
+      volumes:
+      - name: whitelist-data
+        emptyDir: {}
+      - name: nft-marketplace-data
+        emptyDir: {}
+
+      restartPolicy: Always

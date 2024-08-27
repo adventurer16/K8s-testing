@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: my-pvc
+  name: elasticsearch-pvc
   namespace: testing
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: standard 
+      storage: 20Gi

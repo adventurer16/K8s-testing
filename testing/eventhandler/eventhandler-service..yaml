@@ -4,10 +4,11 @@ metadata:
   name: eventhandler-service
   namespace: testing
 spec:
+  type: NodePort  # Change the type to NodePort
   selector:
     app: eventhandler
   ports:
     - protocol: TCP
       port: 4000
       targetPort: 4000
-      nodePort: 30000  # You can choose a port between 30000-32767
+      nodePort: 30000  # NodePort should be in the range 30000-32767

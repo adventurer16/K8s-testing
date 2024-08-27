@@ -17,7 +17,13 @@ spec:
       - name: regcred
       containers:
       - name: backend
-        image: rabebhamd/backend-service:test2
+        image: rabebhamd/backend-service:test3
+        securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+            drop: ["ALL"]
         imagePullPolicy: Always
         ports:
         - containerPort: 8081

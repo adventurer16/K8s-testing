@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sonar-postgres
-  namespace: testing
+  namespace: sonarqube
 spec:
   replicas: 1
   selector:
@@ -13,6 +13,8 @@ spec:
       labels:
         app: sonar-postgres
     spec:
+      imagePullSecrets:
+      - name: regcred
       containers:
       - name: postgres
         image: postgres:13
@@ -37,13 +39,22 @@ spec:
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
 
       - name: sonarqube
         image: sonarqube:9.6-community
+        imagePullPolicy: Always
         ports:
         - containerPort: 9000
         env:
         - name: SONARQUBE_JDBC_USERNAME
+
           valueFrom:
             secretKeyRef:
               name: sonarqube-secrets
@@ -63,6 +74,8 @@ spec:
             secretKeyRef:
               name: sonarqube-secrets
               key: sonar.web.systemPasscode
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch-service.testing.svc.cluster.local:9200"
         volumeMounts:
         - name: sonarqube-data
           mountPath: /opt/sonarqube/data
@@ -70,6 +83,13 @@ spec:
           mountPath: /opt/sonarqube/logs
         - name: sonarqube-temp
           mountPath: /opt/sonarqube/temp
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
 
       volumes:
       - name: postgres-data
