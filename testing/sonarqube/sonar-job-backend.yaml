@@ -1,22 +1,25 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
-  name: sonar-scanner-backend-job
+  name: sonar-scanner-backend-cronjob
   namespace: sonarqube
 spec:
-  template:
+  schedule: "0 0 */14 * *"  # This schedule runs at midnight every 14 days
+  jobTemplate:
     spec:
-      imagePullSecrets:
-      - name: regcred
-      containers:
-      - name: sonar-scanner-backend
-        image: rabebhamd/sonar-job-backend:test
-        imagePullPolicy: Always
-        env:
-        - name: SONARQUBE_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: sonarqube-secrets
-              key: sonar.token 
-      restartPolicy: Never
-  backoffLimit: 4
+      template:
+        spec:
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: sonar-scanner-backend
+            image: rabebhamd/sonar-job-backend:test
+            imagePullPolicy: Always
+            env:
+            - name: SONARQUBE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sonarqube-secrets
+                  key: sonar.token
+          restartPolicy: Never
+
