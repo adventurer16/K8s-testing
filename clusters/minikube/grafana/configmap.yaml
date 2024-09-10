@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: monitoring
+data:
+  grafana.ini: |
+    [security]
+    # Disable Grafana's basic authentication (optional, depending on your needs)
+    disable_login_form = false
+    # Set the default admin user password
+    admin_user = admin
+    admin_password = GrafanaMas175 # Change this to your desired password
+
+    [auth.anonymous]
+    # Disable anonymous access (optional, depending on your needs)
+    enabled = false
+
+    [server]
+    # If you want to change the port Grafana runs on
+    http_port = 3200

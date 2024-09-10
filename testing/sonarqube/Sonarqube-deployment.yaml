@@ -41,10 +41,10 @@ spec:
           mountPath: /var/lib/postgresql/data
         resources:
           requests:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "1"
           limits:
-            memory: "4Gi"
+            memory: "2Gi"
             cpu: "2"
 
       - name: sonarqube
@@ -85,10 +85,10 @@ spec:
           mountPath: /opt/sonarqube/temp
         resources:
           requests:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "1"
           limits:
-            memory: "4Gi"
+            memory: "2Gi"
             cpu: "2"
 
       volumes:

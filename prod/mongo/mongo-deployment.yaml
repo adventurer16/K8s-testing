@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment-test
+  namespace: testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-config
+          mountPath: /etc/mongo
+          subPath: mongodb.conf
+        - name: mongo-data
+          mountPath: /data/db
+        - name: mongo-log
+          mountPath: /var/log/mongodb
+      volumes:
+      - name: mongo-config
+        configMap:
+          name: mongo-configmap-test
+          items:
+          - key: mongodb.conf
+            path: mongodb.conf
+      - name: mongo-data
+        emptyDir: {}
+      - name: mongo-log
+        emptyDir: {}

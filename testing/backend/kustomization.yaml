@@ -4,5 +4,5 @@ resources:
  - backend-configmap-test.yaml  
  - backend-secrets-test.yaml 
  - backend-deployment-test.yaml 
- -  backend-service-test.yaml 
- -  image-pull-secret-test.yaml 
+ - backend-service-test.yaml 
+ - image-pull-secret-test.yaml 

@@ -1,0 +1,24 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: contract-service-policy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: contracts-repo
+  policy:
+    alphabetical:
+      order: asc   # This policy will always use the image with the latest alphabetical order
+
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: contract-whitelist-service-policy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: contracts-whitelist-repo
+  policy:
+    alphabetical:
+      order: asc  # This policy will always use the image with the latest alphabetical order

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whitelist-nft-contract-deployment
+  labels:
+    app: whitelist-nft-contract
+spec:
+  replicas: 1  # Number of Pods to run
+  selector:
+    matchLabels:
+      app: whitelist-nft-contract
+  template:
+    metadata:
+      labels:
+        app: whitelist-nft-contract
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: whitelist
+        image: rabebhamd/whitelist-contracts:prod
+        imagePullPolicy: Always 
+        workingDir: /whitelist
+        command: ["/bin/bash"]  
+        tty: true  
+        stdin: true  
+        volumeMounts:
+        - name: whitelist-data
+          mountPath: /whitelist
+
+      - name: nft-marketplace-contract
+        image: rabebhamd/contratcs:prod
+        imagePullPolicy: Always  
+        workingDir: /nft-marketplace-contract
+        command: ["/bin/bash"] 
+        tty: true 
+        stdin: true  
+        volumeMounts:
+        - name: nft-marketplace-data
+          mountPath: /nft-marketplace-contract
+
+      volumes:
+      - name: whitelist-data
+        emptyDir: {}
+      - name: nft-marketplace-data
+        emptyDir: {}
+
+      restartPolicy: Always
