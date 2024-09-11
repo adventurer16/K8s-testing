@@ -48,7 +48,7 @@ spec:
       volumes:
       - name: mongo-config
         configMap:
-          name: mongo-configmap-test
+          name: mongo-configmap
           items:
           - key: mongodb.conf
             path: mongodb.conf
