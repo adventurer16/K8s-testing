@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kibana-service
-  namespace: testing  
+  namespace: eventhandler
 spec:
   type: NodePort
   ports:

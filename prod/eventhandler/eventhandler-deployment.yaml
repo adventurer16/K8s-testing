@@ -14,6 +14,15 @@ spec:
       labels:
         app: eventhandler
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: worker
+                operator: In
+                values:
+                - worker1  # Ensure the deployment runs on worker1 only
       restartPolicy: Always
       containers:
       - name: zookeeper
@@ -86,8 +95,6 @@ spec:
         - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
           value: "1"
       
-  
-
       - name: eventhandler
         image: rabebhamd/eventhandler-service:prod
         securityContext:
@@ -105,8 +112,6 @@ spec:
         - name: ELASTICSEARCH_NODE
           value: "http://elasticsearch-service:9200"
         
-
       volumes:
       - name: app-env
         emptyDir: {}
- 

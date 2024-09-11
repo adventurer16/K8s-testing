@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongo-deployment
-  namespace: production
+  namespace: mongodb
 spec:
-  replicas: 2
+  replicas: 2  # Ensure two replicas, one on each node
   selector:
     matchLabels:
       app: mongodb
@@ -13,6 +13,25 @@ spec:
       labels:
         app: mongodb
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: worker
+                operator: In
+                values:
+                - worker1
+                - worker2  # Ensure MongoDB pods are scheduled on worker1 and worker2 only
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - mongodb
+            topologyKey: "kubernetes.io/hostname"  # Spread pods across different nodes
       containers:
       - name: mongodb
         image: mongo:latest
@@ -37,3 +56,5 @@ spec:
         emptyDir: {}
       - name: mongo-log
         emptyDir: {}
+
+      restartPolicy: Always

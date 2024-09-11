@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment-test
-  namespace: testing
+  namespace: production
 spec:
-  replicas: 1
+  replicas: 2  # Ensure two replicas
   selector:
     matchLabels:
       app: backend
@@ -13,9 +13,19 @@ spec:
       labels:
         app: backend
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: worker
+                operator: In
+                values:
+                - worker1
+                - worker2  # Ensure backend pods are scheduled on worker1 and worker2
       containers:
       - name: backend
-        image: rabebhamd/backend-service:test3
+        image: rabebhamd/backend-service:prod
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
@@ -23,7 +33,7 @@ spec:
         - name: MONGO_URI
           valueFrom:
             secretKeyRef:
-              name: backend-secrets-test
+              name: backend-secrets
               key: mongo-uri
         resources:
           requests:

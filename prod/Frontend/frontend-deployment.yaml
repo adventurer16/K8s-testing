@@ -4,7 +4,7 @@ metadata:
   name: frontend-deployment
   namespace: production
 spec:
-  replicas: 2
+  replicas: 2  # Ensure two replicas, one on each node
   selector:
     matchLabels:
       app: frontend
@@ -13,11 +13,30 @@ spec:
       labels:
         app: frontend
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: worker
+                operator: In
+                values:
+                - worker1
+                - worker2  # Ensure frontend pods are scheduled only on worker1 and worker2
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - frontend
+            topologyKey: "kubernetes.io/hostname"  # Spread frontend pods across different nodes
       imagePullSecrets:
       - name: regcred
       containers:
       - name: frontend
-        image: rabebhamd/frontend-service:test 
+        image: rabebhamd/frontend-service:prod
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

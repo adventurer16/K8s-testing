@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: elasticsearch-service
-  namespace: production
+  namespace: eventhandler
 spec:
   type: NodePort
   ports:
