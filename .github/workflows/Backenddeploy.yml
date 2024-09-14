@@ -13,7 +13,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Kubeconfig
-      run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
     - name: Deploy to Kubernetes
       run: kubectl apply -f /prod/backend/ --namespace production
