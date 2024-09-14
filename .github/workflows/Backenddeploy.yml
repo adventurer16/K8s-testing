@@ -12,13 +12,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-      - name: Set up Kubeconfig
+    - name: Set up Kubeconfig
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      - name: Verify kubectl version
+    - name: Verify kubectl version
         run: kubectl version --client
     - name: Deploy to Kubernetes
       run: kubectl apply -f /prod/backend/ --namespace production
