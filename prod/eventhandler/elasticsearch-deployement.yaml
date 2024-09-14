@@ -26,6 +26,9 @@ spec:
       containers:
       - name: elasticsearch
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
         ports:
         - containerPort: 9200
         env:
@@ -61,7 +64,11 @@ spec:
         - name: ELASTICSEARCH_USERNAME
           value: "elastic"
         - name: ELASTICSEARCH_PASSWORD
-          value: "your_secure_password"
+          valueFrom:
+            secretKeyRef:
+              name: elasticsearch-secret
+              key: ELASTIC_PASSWORD
+
         - name: LOGGING_VERBOSE
           value: "true"
         volumeMounts:

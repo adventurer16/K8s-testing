@@ -108,7 +108,7 @@ spec:
         - containerPort: 4000
         env:
         - name: MONGO_URI
-          value: "mongodb://admin:147zaah@mongo-service-test:27017/db_indexation?authSource=admin" 
+          value: "mongodb://admin:147zaah@mongo-service.mongodb.svc.cluster.local:27017/db_indexation?authSource=admin" 
         - name: ELASTICSEARCH_NODE
           value: "http://elasticsearch-service:9200"
         

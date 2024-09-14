@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  path: "./testing/Frontend"
+  path: "./prod/Frontend"
   prune: true
   force: true 
   sourceRef:
@@ -15,5 +15,5 @@ spec:
   images:
     - name: rabebhamd/frontend-service
       newName: rabebhamd/frontend-service
-      newTag: test # Specify the tag you want to monitor
-  targetNamespace: testing
+      newTag: prod # Specify the tag you want to monitor
+  targetNamespace: production
