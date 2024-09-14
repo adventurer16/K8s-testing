@@ -23,4 +23,8 @@ jobs:
       run: kubectl version --client
 
     - name: Deploy to Kubernetes
-      run: kubectl apply -f ./prod/backend/ --namespace production
+      run: |
+        kubectl apply -f ./prod/backend/backend-configmap.yaml --namespace production
+        kubectl apply -f ./prod/backend/backend-deployment.yaml --namespace production
+        kubectl apply -f ./prod/backend/backend-secrets.yaml --namespace production
+        kubectl apply -f ./prod/backend/backend-service.yaml --namespace production
