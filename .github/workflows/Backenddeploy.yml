@@ -21,8 +21,6 @@ jobs:
 
     - name: Verify kubectl version
       run: kubectl version --client
-    - name: List directory contents
-      run: ls -R
 
     - name: Deploy to Kubernetes
-      run: kubectl apply -f /prod/backend/ --namespace production
+      run: kubectl apply -f ./prod/backend/ --namespace production
